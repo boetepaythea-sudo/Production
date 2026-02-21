@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="id">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ERP Dashboard - Full Version</title>
+
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                font-family: 'Poppins', sans-serif;
+                background: #f4f6f9;
+            }
+
+            /* LOGIN PAGE */
+            #loginPage {
+                display: flex;
+                height: 100vh;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);
+                color: white;
+            }
+
+            .login-box {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                padding: 30px 40px;
+                width: 350px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                text-align: center;
+                backdrop-filter: blur(10px);
+            }
+
+            .login-box h2 {
+                margin-bottom: 25px;
+                font-weight: 600;
+            }
+
+            .login-box input {
+                width: 100%;
+                padding: 12px 15px;
+                margin: 10px 0;
+                border-radius: 8px;
+                border: none;
+                font-size: 16px;
+                outline: none;
+            }
+
+            .login-box button {
+                background: #2563eb;
+                border: none;
+                color: white;
+                padding: 12px;
+                width: 100%;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 15px;
+                transition: background-color 0.3s ease;
+            }
+
+            .login-box button:hover {
+                background: #1e40af;
+            }
+
+            .login-image {
+                width: 120px;
+                margin: 0 auto 15px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            }
+
+            /* CONTAINER AFTER LOGIN */
+            .container {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: 250px;
+                background: #1e293b;
+                color: white;
+                padding: 20px;
+                transition: .3s;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar h2 {
+                text-align: center;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+                flex-grow: 1;
+            }
+
+            .sidebar ul li {
+                padding: 12px;
+                cursor: pointer;
+                border-radius: 6px;
+                margin: 5px 0;
+            }
+
+            .sidebar ul li:hover {
+                background: #334155;
+            }
+
+            .sidebar ul li.logout {
+                margin-top: auto;
+                background: #dc2626;
+                font-weight: 600;
+            }
+
+            .sidebar ul li.logout:hover {
+                background: #991b1b;
+            }
+
+            .main {
+                flex: 1;
+                padding: 20px;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .kpi {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                background: white;
+                padding: 15px;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+
+            form input,
+            form select,
+            form button {
+                padding: 8px;
+                margin: 5px 0;
+                width: 100%;
+                box-sizing: border-box;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            button {
+                background: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background: #1e40af;
+            }
+
+            canvas {
+                background: white;
+                padding: 10px;
+                border-radius: 10px;
+                margin-top: 15px;
+                width: 100% !important;
+                max-height: 350px;
+            }
+
+            .menu-toggle {
+                display: none;
+                font-size: 22px;
+                background: none;
+                border: none;
+                color: black;
+            }
+
+            @media(max-width:768px) {
+                .sidebar {
+                    position: absolute;
+                    left: -250px;
+                    z-index: 10;
+                    height: 100%;
+                }
+
+                .sidebar.show {
+                    left: 0;
+                }
+
+                .menu-toggle {
+                    display: block;
+                }
+            }
+
+            /* ================= MASTER DATA & FORECAST (DISAMAKAN) ================= */
+
+            /* Input, Select, Button */
+            #master input,
+            #master select,
+            #master button,
+            #forecast input,
+            #forecast select,
+            #forecast button {
+                padding: 6px;
+                margin: 5px 0;
+                width: 100%;
+                box-sizing: border-box;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            /* Button Style */
+            #master button,
+            #forecast button {
+                background: #2563eb;
+                color: white;
+                border: none;
+            }
+
+            #master button:hover,
+            #forecast button:hover {
+                background: #1e40af;
+            }
+
+            /* Table Styling */
+            #master table,
+            #forecast table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            #master table th,
+            #master table td,
+            #forecast table th,
+            #forecast table td {
+                border: 1px solid #ccc;
+                padding: 6px;
+                text-align: left;
+            }
+
+            #master table th,
+            #forecast table th {
+                background: #2563eb;
+                color: white;
+            }
+
+            /* Readonly styling tetap */
+            #recipeForm input[readonly] {
+                background: #f1f5f9;
+                font-weight: bold;
+            }
+
+            #recipeForm input[readonly] {
+                background: #f1f5f9;
+                font-weight: bold;
+            }
+
+            /* Marketing */
+            #newTokoForm {
+                background: #fff;
+                padding: 15px;
+                margin-top: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            #tokoDataContainer {
+                margin-top: 15px;
+            }
+
+            #tokoDataContainer table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #tokoDataContainer table th,
+            #tokoDataContainer table td {
+                border: 1px solid #ccc;
+                padding: 6px;
+                text-align: left;
+            }
+
+            #tokoDataContainer table th {
+                background: #6ee30f;
+                color: white;
+            }
+
+            #tokoDataContainer button {
+                padding: 4px 8px;
+                background: #dc2626;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            #tokoDataContainer button:hover {
+                background: #991b1b;
+            }
+
+            /* Styling untuk semua tabel (toko & marketing) */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            table th,
+            table td {
+                padding: 10px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            table th {
+                background: #2563eb;
+                color: white;
+            }
+
+            table tr:hover {
+                background: #f1f5f9;
+            }
+
+            table button {
+                background: #dc2626;
+                color: white;
+                border: none;
+                padding: 5px 8px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            table button:hover {
+                background: #991b1b;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <!-- LOGIN PAGE -->
+        <div id="loginPage">
+            <div class="login-box">
+                <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="User Icon" class="login-image">
+                <h2>Login ERP System</h2>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button onclick="login()">Login</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="container" id="dashboardPage" style="display:none;">
+
+            <aside class="sidebar" id="sidebar">
+                <h2>ERP SYSTEM</h2>
+                <ul>
+                    <li onclick="showSection('dashboard')">Dashboard</li>
+                    <li onclick="showSection('master')">Master Data</li>
+                    <li onclick="showSection('forecast')">Forecast</li>
+                    <li onclick="showSection('po')">Purchase Order</li>
+                    <li onclick="showSection('production')">Production</li>
+                    <li onclick="showSection('marketing')">Marketing</li>
+                    <li onclick="showSection('management')">Management</li>
+                    <li class="logout" onclick="logout()">Logout</li>
+                </ul>
+            </aside>
+
+            <main class="main">
+                <header>
+                    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+                    <h2>ERP Dashboard</h2>
+                </header>
+
+                <!-- DASHBOARD SECTION -->
+                <section id="dashboard">
+                    <div class="kpi">
+                        <div class="card">
+                            <h4>Total Sales</h4>
+                            <h2 id="totalSales">0</h2>
+                        </div>
+                        <div class="card">
+                            <h4>Forecast Next Month</h4>
+                            <h2 id="forecastValue">0</h2>
+                        </div>
+                    </div>
+
+                    <!-- Filter tanggal untuk dashboard -->
+                    <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <label>Dari: <input type="date" id="dashboardStart"></label>
+                        <label>Sampai: <input type="date" id="dashboardEnd"></label>
+                    </div>
+
+                    <canvas id="salesChart"></canvas>
+                </section>
+
+                <!-- MARKETING SECTION -->
+                <section id="marketing" style="display:none;">
+                    <h3>Data Marketing & Input</h3>
+
+                    <!-- Toko Table -->
+                    <h3>Input Toko</h3>
+                    <button type="button" onclick="showTokoForm()">Tambah Toko Baru</button>
+                    <button type="button" onclick="showTokoData()">Tampilkan Data Toko</button>
+                    <button type="button" onclick="closeTokoData()">Close Data Toko</button>
+                    <div id="tokoDataContainer" style="display:none;margin-top:10px;"></div>
+
+                    <!-- Toko Form -->
+                    <div id="newTokoForm" style="display:none;margin-top:10px;">
+                        <input type="text" id="tokoName" placeholder="Nama Toko" required>
+                        <input type="text" id="tokoAlamat" placeholder="Alamat Toko">
+                        <input type="text" id="tokoTelp" placeholder="No Telepon">
+                        <button type="button" onclick="saveToko()">Simpan Toko</button>
+                        <button type="button" onclick="hideTokoForm()">Batal</button>
+                    </div>
+
+                    <!-- Marketing Form -->
+                    <h3>Input Sales</h3>
+                    <div id="marketingFormContainer" style="margin-top:20px;">
+                        <label for="tokoSelect">Pilih Toko:</label>
+                        <select id="tokoSelect" required></select>
+                        <label for="marketingMonth">Pilih Bulan:</label>
+                        <input type="month" id="bulan" required>
+                        <input type="number" id="value" placeholder="Value Sales" required>
+                        <button type="submit" onclick="saveMarketing()">Simpan Data Marketing</button>
+                    </div>
+
+                    <!-- Marketing Table -->
+                    <div style="margin-top:20px;">
+                        <label for="filterStart">Dari Tanggal:</label>
+                        <input type="month" id="filterStart">
+                        <label for="filterEnd">Sampai Tanggal:</label>
+                        <input type="month" id="filterEnd">
+                        <button type="button" onclick="showMarketingData()">Tampilkan Data Sales</button>
+                        <button type="button" onclick="closeMarketingData()">Close Data Sales</button>
+                        <div id="marketingDataContainer" style="display:none;margin-top:10px;"></div>
+                    </div>
+                </section>
+
+
+                <!-- MASTER DATA SECTION -->
+                <section id="master" style="display:none;">
+
+                    <div class="card">
+                        <h3>Input Master Data Bahan Baku</h3>
+
+                        <input type="text" id="skuBahan" placeholder="SKU">
+                        <input type="text" id="namaBahan" placeholder="Nama Bahan Baku">
+                        <input type="text" id="qtyBahan" placeholder="Qty (contoh 0,2)">
+                        <select id="weightBahan">
+                            <option value="Liter">Liter</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Gram">Gram</option>
+                            <option value="Pcs">Pcs</option>
+                        </select>
+                        <input type="text" id="hargaSatuan" placeholder="Harga Satuan">
+                        <input type="text" id="hargaPembelian" placeholder="Harga Pembelian" readonly>
+
+                        <button onclick="saveMasterBahan()">Save Data</button>
+                        <button onclick="showMasterBahanData()">View Data</button>
+                        <button onclick="closeMasterBahanData()">Close Data</button>
+
+                        <div id="masterBahanDataContainer" style="margin-top:10px;"></div>
+                    </div>
+
+                </section>
+
+                <!-- FORECAST SECTION -->
+                <section id="forecast" style="display:none;">
+
+                    <div class="card">
+
+                        <!-- Toggle Button -->
+                        <button onclick="toggleRecipeForm()">Input Recipe</button>
+
+                        <!-- Form (Hidden by Default) -->
+                        <div id="recipeForm" style="display:none; margin-top:10px;">
+
+                            <input type="text" id="skuRecipe" placeholder="SKU Kue">
+                            <input type="text" id="namaKue" placeholder="Nama Kue">
+                            <input type="number" id="marginRecipe" placeholder="Margin (%)">
+
+                            <input type="text" id="hppRecipe" placeholder="HPP" readonly>
+                            <input type="text" id="hargaJualRecipe" placeholder="Harga Jual" readonly>
+
+                            <hr>
+
+                            <select id="bahanSelect">
+                                <option value="">-- Pilih Bahan --</option>
+                            </select>
+
+                            <input type="text" id="skuBahanRecipe" readonly placeholder="SKU Bahan">
+                            <input type="text" id="qtyRecipe" placeholder="Qty">
+
+                            <select id="weightRecipe">
+                                <option value="Liter">Liter</option>
+                                <option value="Kg">Kg</option>
+                                <option value="Gram">Gram</option>
+                                <option value="Pcs">Pcs</option>
+                            </select>
+
+                            <input type="text" id="priceRecipe" readonly placeholder="Cost">
+
+                            <button onclick="addRecipeItem()">Add Item</button>
+                            <button onclick="saveRecipe()">Save</button>
+                            <button onclick="showRecipeData()">View</button>
+                            <button onclick="closeRecipeData()">Close</button>
+
+                        </div>
+
+                        <!-- Data Container -->
+                        <div id="recipeTableContainer" style="margin-top:10px;"></div>
+
+                    </div>
+
+                </section>
+
+                <section id="po" style="display:none;">
+                    <h3>Purchase Order</h3>
+                    <p>Fitur menyusul...</p>
+                </section>
+                <section id="production" style="display:none;">
+                    <h3>Production</h3>
+                    <p>Fitur menyusul...</p>
+                </section>
+                <section id="management" style="display:none;">
+                    <h3>Management</h3>
+                    <p>Fitur menyusul...</p>
+                </section>
+
+            </main>
+        </div>
+
+        <script type="module">
+
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+            import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+            /* ================= FIREBASE ================= */
+            const firebaseConfig = {
+                apiKey: "AIzaSyBSFKdkSprULteFFSycNTKnuB_XYqAVs-Y",
+                authDomain: "erp-dashboard-c9872.firebaseapp.com",
+                projectId: "erp-dashboard-c9872",
+                storageBucket: "erp-dashboard-c9872.firebasestorage.app",
+                messagingSenderId: "167609090103",
+                appId: "1:167609090103:web:92718c86c0bb27515c7fb2",
+                measurementId: "G-D8RZJXG3SK"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            /* ================= GLOBAL TOGGLE ================= */
+
+            window.toggleMasterBahanForm = () => {
+                const el = document.getElementById("masterBahanForm");
+                el.style.display = el.style.display === "none" ? "block" : "none";
+            };
+
+            window.toggleRecipeForm = () => {
+                const el = document.getElementById("recipeForm");
+                el.style.display = el.style.display === "none" ? "block" : "none";
+            };
+
+            window.toggleMenu = () => {
+                document.getElementById("sidebar").classList.toggle("show");
+            };
+
+            /* ================= SECTION ================= */
+
+            window.showSection = (id) => {
+                document.querySelectorAll("main section").forEach(sec => sec.style.display = "none");
+                document.getElementById(id).style.display = "block";
+
+                if (id === "marketing") loadTokoOptions();
+                if (id === "dashboard") loadDashboardData();
+            };
+
+            /* ================= LOGIN ================= */
+
+            window.login = () => {
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value.trim();
+                if (!email || !password) return alert("Email dan password wajib diisi");
+
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        document.getElementById("loginPage").style.display = "none";
+                        document.getElementById("dashboardPage").style.display = "flex";
+                        showSection("dashboard");
+                    })
+                    .catch(err => alert(err.message));
+            };
+
+            window.logout = () => signOut(auth).then(() => location.reload());
+
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    document.getElementById("loginPage").style.display = "none";
+                    document.getElementById("dashboardPage").style.display = "flex";
+                    showSection("dashboard");
+                }
+            });
+
+            /* ================= CLOUD MASTER & RECIPE ================= */
+
+            let masterBahan = [];
+            let currentRecipeItems = [];
+            let allRecipes = [];
+            let currentSKU = null;
+
+            // ================= TOGGLE RECIPE =================
+            window.toggleRecipeForm = () => {
+                const form = document.getElementById("recipeForm");
+                form.style.display = form.style.display === "none" ? "block" : "none";
+            };
+
+            /* ================= LOAD DATA SAAT MASUK MENU MASTER ================= */
+
+            async function loadMasterBahan() {
+                const snapshot = await getDocs(collection(db, "masterBahan"));
+                masterBahan = [];
+                snapshot.forEach(docSnap => {
+                    masterBahan.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                loadBahanSelect();
+            }
+
+            async function loadRecipes() {
+                const snapshot = await getDocs(collection(db, "recipes"));
+                allRecipes = [];
+                snapshot.forEach(docSnap => {
+                    allRecipes.push({ id: docSnap.id, ...docSnap.data() });
+                });
+            }
+
+            /* PANGGIL SAAT MASUK SECTION MASTER */
+            const originalShowSection = window.showSection;
+            window.showSection = async (id) => {
+                originalShowSection(id);
+
+                if (id === "master") {
+                    await loadMasterBahan(); // hanya load master bahan
+                }
+
+                if (id === "forecast") {
+                    await loadMasterBahan(); // recipe butuh master bahan
+                    await loadRecipes();
+                }
+            };
+
+            /* ================= MASTER BAHAN ================= */
+
+            window.saveMasterBahan = async () => {
+
+                const sku = document.getElementById("skuBahan").value.trim();
+                const nama = document.getElementById("namaBahan").value.trim();
+                const qty = parseFloat(document.getElementById("qtyBahan").value) || 0;
+                const weight = document.getElementById("weightBahan").value;
+                const hargaSatuan = parseFloat(document.getElementById("hargaSatuan").value) || 0;
+
+                if (!sku || !nama || qty <= 0 || hargaSatuan <= 0)
+                    return alert("Isi semua field dengan benar!");
+
+                const hargaBeli = qty * hargaSatuan;
+
+                await addDoc(collection(db, "masterBahan"), {
+                    sku,
+                    nama,
+                    qty,
+                    weight,
+                    hargaSatuan,
+                    hargaBeli,
+                    createdAt: new Date()
+                });
+
+                alert("Master Bahan tersimpan di Cloud");
+
+                await loadMasterBahan();
+                showMasterBahanData();
+            };
+
+            window.showMasterBahanData = () => {
+
+                const container = document.getElementById("masterBahanDataContainer");
+
+                if (masterBahan.length === 0)
+                    return container.innerHTML = "<p>Belum ada data</p>";
+
+                let html = `<table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Nama</th>
+                <th>Qty</th>
+                <th>Weight</th>
+                <th>Harga Satuan</th>
+                <th>Total Beli</th>
+                <th>Aksi</th>
+            </tr>
+        </thead><tbody>`;
+
+                masterBahan.forEach(d => {
+                    html += `<tr>
+            <td>${d.sku}</td>
+            <td>${d.nama}</td>
+            <td>${d.qty}</td>
+            <td>${d.weight}</td>
+            <td>${d.hargaSatuan.toLocaleString()}</td>
+            <td>${d.hargaBeli.toLocaleString()}</td>
+            <td>
+                <button onclick="deleteMasterBahan('${d.id}')">Hapus</button>
+            </td>
+        </tr>`;
+                });
+
+                html += "</tbody></table>";
+                container.innerHTML = html;
+            };
+
+            window.deleteMasterBahan = async (id) => {
+                if (!confirm("Hapus bahan ini?")) return;
+                await deleteDoc(doc(db, "masterBahan", id));
+                await loadMasterBahan();
+                showMasterBahanData();
+            };
+
+            window.closeMasterBahanData = () => {
+                document.getElementById("masterBahanDataContainer").innerHTML = "";
+            };
+
+            function loadBahanSelect() {
+                const select = document.getElementById("bahanSelect");
+                select.innerHTML = '<option value="">-- Pilih Bahan --</option>';
+                masterBahan.forEach((b, i) => {
+                    select.innerHTML += `<option value="${i}">${b.nama}</option>`;
+                });
+                // Event listener otomatis update saat pilih bahan
+                select.addEventListener("change", () => {
+                    const idx = select.value;
+                    if (idx === "") {
+                        document.getElementById("skuBahanRecipe").value = "";
+                        document.getElementById("priceRecipe").value = "";
+                        return;
+                    }
+                    const bahan = masterBahan[idx];
+                    document.getElementById("skuBahanRecipe").value = bahan.sku;
+
+                    // Hitung price otomatis jika qty sudah ada
+                    const qty = parseFloat(document.getElementById("qtyRecipe").value) || 0;
+                    document.getElementById("priceRecipe").value = (bahan.hargaSatuan * qty).toFixed(2);
+                });
+            }
+
+            /* ================= RECIPE ================= */
+
+            window.addRecipeItem = () => {
+
+                const idx = document.getElementById("bahanSelect").value;
+                const qty = parseFloat(document.getElementById("qtyRecipe").value) || 0;
+                const weight = document.getElementById("weightRecipe").value;
+
+                if (idx === "" || qty <= 0)
+                    return alert("Pilih bahan dan isi qty");
+
+                const bahan = masterBahan[idx];
+                const price = bahan.hargaSatuan * qty;
+
+                currentRecipeItems.push({
+                    skuBahan: bahan.sku,
+                    namaBahan: bahan.nama,
+                    qty,
+                    weight,
+                    price
+                });
+
+                showRecipeTable();
+            };
+
+            function showRecipeTable() {
+
+                const container = document.getElementById("recipeTableContainer");
+                const sku = document.getElementById("skuRecipe").value;
+                const nama = document.getElementById("namaKue").value;
+
+                if (!sku || !nama) return;
+
+                let total = 0;
+
+                let html = `
+    <h4>SKU: ${sku} | Nama: ${nama}</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>SKU Bahan</th>
+                <th>Nama</th>
+                <th>Qty</th>
+                <th>Weight</th>
+                <th>Cost</th>
+            </tr>
+        </thead><tbody>`;
+
+                currentRecipeItems.forEach(d => {
+                    total += d.price;
+                    html += `<tr>
+            <td>${d.skuBahan}</td>
+            <td>${d.namaBahan}</td>
+            <td>${d.qty}</td>
+            <td>${d.weight}</td>
+            <td>${d.price.toLocaleString()}</td>
+        </tr>`;
+                });
+
+                html += `<tr>
+        <td colspan="4"><strong>Total HPP</strong></td>
+        <td><strong>${total.toLocaleString()}</strong></td>
+    </tr></tbody></table>`;
+
+                container.innerHTML = html;
+            }
+
+            window.saveRecipe = async () => {
+
+                const sku = document.getElementById("skuRecipe").value.trim();
+                const nama = document.getElementById("namaKue").value.trim();
+
+                if (!sku || !nama || currentRecipeItems.length === 0)
+                    return alert("Lengkapi recipe");
+
+                let total = 0;
+                currentRecipeItems.forEach(i => total += i.price);
+
+                await addDoc(collection(db, "recipes"), {
+                    sku,
+                    nama,
+                    items: currentRecipeItems,
+                    totalHPP: total,
+                    createdAt: new Date()
+                });
+
+                alert("Recipe tersimpan di Cloud");
+
+                currentRecipeItems = [];
+                await loadRecipes();
+            };
+
+            window.showRecipeData = () => {
+
+                const container = document.getElementById("recipeTableContainer");
+
+                if (allRecipes.length === 0)
+                    return container.innerHTML = "<p>Belum ada recipe</p>";
+
+                let html = "";
+
+                allRecipes.forEach(r => {
+                    html += `<h4>${r.sku} - ${r.nama}</h4>`;
+                    html += `<table><tbody>`;
+                    r.items.forEach(i => {
+                        html += `<tr>
+                <td>${i.namaBahan}</td>
+                <td>${i.qty} ${i.weight}</td>
+                <td>${i.price.toLocaleString()}</td>
+            </tr>`;
+                    });
+                    html += `<tr>
+            <td colspan="2"><strong>Total</strong></td>
+            <td><strong>${r.totalHPP.toLocaleString()}</strong></td>
+        </tr></tbody></table><hr>`;
+                });
+
+                container.innerHTML = html;
+            };
+
+            window.closeRecipeData = () => {
+                document.getElementById("recipeTableContainer").innerHTML = "";
+            };
+
+            document.getElementById("skuRecipe")
+                .addEventListener("input", () => {
+
+                    const newSKU = document.getElementById("skuRecipe").value.trim();
+
+                    if (currentSKU && currentSKU !== newSKU && currentRecipeItems.length > 0) {
+
+                        if (!confirm("Ganti SKU akan menghapus bahan sementara. Lanjutkan?")) {
+                            document.getElementById("skuRecipe").value = currentSKU;
+                            return;
+                        }
+
+                        currentRecipeItems = [];
+                        document.getElementById("recipeTableContainer").innerHTML = "";
+                    }
+
+                    currentSKU = newSKU;
+                });
+
+            // ====== DASHBOARD CHART PER TOKO ======
+            async function loadDashboardData() {
+                const startDate = document.getElementById("dashboardStart").value; // format YYYY-MM-DD
+                const endDate = document.getElementById("dashboardEnd").value;     // format YYYY-MM-DD
+
+                const snapshotMarketing = await getDocs(collection(db, "marketing"));
+                const snapshotToko = await getDocs(collection(db, "toko"));
+
+                if (snapshotToko.empty || snapshotMarketing.empty) {
+                    document.getElementById("totalSales").innerText = "0";
+                    document.getElementById("forecastValue").innerText = "0";
+                    if (window.salesChartInstance) window.salesChartInstance.destroy();
+                    return;
+                }
+
+                // Mapping tokoId -> nama toko
+                const tokoMap = {};
+                snapshotToko.forEach(doc => {
+                    tokoMap[doc.id] = doc.data().name;
+                });
+
+                let totalSales = 0;
+                const salesPerToko = {};
+
+                snapshotMarketing.forEach(doc => {
+                    const data = doc.data();
+                    const dateParts = data.bulan.split("-"); // asumsi format bulan: YYYY-MM
+                    const dataDate = new Date(dateParts[0], dateParts[1] - 1, 1);
+
+                    // Filter berdasarkan input tanggal
+                    let include = true;
+                    if (startDate && dataDate < new Date(startDate)) include = false;
+                    if (endDate && dataDate > new Date(endDate)) include = false;
+                    if (!include) return;
+
+                    const tokoName = tokoMap[data.tokoId] || "Unknown";
+                    totalSales += data.value;
+                    if (!salesPerToko[tokoName]) salesPerToko[tokoName] = 0;
+                    salesPerToko[tokoName] += data.value;
+                });
+
+                document.getElementById("totalSales").innerText = totalSales.toLocaleString();
+
+                const labels = Object.keys(salesPerToko);
+                const values = Object.values(salesPerToko);
+
+                const forecast = linearRegression(values);
+                document.getElementById("forecastValue").innerText = Math.round(forecast).toLocaleString();
+
+                if (window.salesChartInstance) window.salesChartInstance.destroy();
+
+                window.salesChartInstance = new Chart(document.getElementById("salesChart"), {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Sales per Toko",
+                            data: values,
+                            backgroundColor: "#3b82f6",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.parsed.y.toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { callback: value => value.toLocaleString() },
+                                title: { display: true, text: 'Value Sales' }
+                            },
+                            x: { title: { display: true, text: 'Toko' } }
+                        }
+                    }
+                });
+            }
+
+            // ====== EVENT LISTENER UNTUK FILTER TANGGAL ======
+            document.getElementById("dashboardStart").addEventListener("change", loadDashboardData);
+            document.getElementById("dashboardEnd").addEventListener("change", loadDashboardData);
+
+            // ====== LINEAR REGRESSION ======
+            function linearRegression(y) {
+                if (y.length === 0) return 0;
+                let x = [], sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+                for (let i = 0; i < y.length; i++) { x.push(i + 1); sumX += x[i]; sumY += y[i]; sumXY += x[i] * y[i]; sumXX += x[i] * x[i]; }
+                const n = y.length;
+                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                const intercept = (sumY - slope * sumX) / n;
+                return slope * (n + 1) + intercept;
+            }
+
+            // ====== MARKETING SECTION ======
+            async function loadTokoOptions() {
+                const tokoSelect = document.getElementById("tokoSelect");
+                tokoSelect.innerHTML = '<option value="">-- Pilih Toko --</option>';
+                const snapshot = await getDocs(collection(db, "toko"));
+                snapshot.forEach(doc => {
+                    const option = document.createElement("option");
+                    option.value = doc.id;
+                    option.textContent = doc.data().name;
+                    tokoSelect.appendChild(option);
+                });
+            }
+
+            // Show/hide toko form
+            window.showTokoForm = () => document.getElementById("newTokoForm").style.display = "block";
+            window.hideTokoForm = () => {
+                document.getElementById("newTokoForm").style.display = "none";
+                document.getElementById("tokoName").value = "";
+                document.getElementById("tokoAlamat").value = "";
+                document.getElementById("tokoTelp").value = "";
+            };
+
+            // Save new toko
+            window.saveToko = async () => {
+                const name = document.getElementById("tokoName").value.trim();
+                const alamat = document.getElementById("tokoAlamat").value.trim();
+                const telp = document.getElementById("tokoTelp").value.trim();
+                if (!name) { alert("Nama toko wajib diisi"); return; }
+                await addDoc(collection(db, "toko"), { name, alamat, telp });
+                alert("Toko berhasil disimpan");
+                hideTokoForm();
+                loadTokoOptions();
+                showTokoData();
+            };
+
+            // Show/Close Toko Data Table
+            window.showTokoData = async () => {
+                const container = document.getElementById("tokoDataContainer");
+                const snapshot = await getDocs(collection(db, "toko"));
+                if (snapshot.empty) { container.innerHTML = "<p>Belum ada data toko</p>"; container.style.display = "block"; return; }
+
+                const table = document.createElement("table");
+                table.innerHTML = `<thead><tr><th>Nama Toko</th><th>Alamat</th><th>Telp</th><th>Aksi</th></tr></thead>`;
+                const tbody = document.createElement("tbody");
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${data.name}</td><td>${data.alamat}</td><td>${data.telp}</td>
+            <td><button onclick="deleteToko('${docSnap.id}')">Hapus</button></td>`;
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = "";
+                container.appendChild(table);
+                container.style.display = "block";
+            };
+            window.closeTokoData = () => document.getElementById("tokoDataContainer").style.display = "none";
+
+            // Delete Toko
+            window.deleteToko = async (id) => {
+                if (confirm("Hapus toko ini?")) {
+                    await deleteDoc(doc(db, "toko", id));
+                    alert("Toko berhasil dihapus");
+                    loadTokoOptions();
+                    showTokoData();
+                }
+            };
+
+            // Save marketing data
+            window.saveMarketing = async () => {
+                const tokoId = document.getElementById("tokoSelect").value;
+                if (!tokoId) { alert("Pilih toko terlebih dahulu"); return; }
+                const bulan = document.getElementById("bulan").value;
+                const value = parseInt(document.getElementById("value").value);
+                if (!value) { alert("Isi Value Sales"); return; }
+
+                await addDoc(collection(db, "marketing"), { tokoId, bulan, value });
+                alert("Data marketing berhasil disimpan");
+
+                document.getElementById("bulan").value = "";
+                document.getElementById("value").value = "";
+                showMarketingData();
+                loadDashboardData();
+            };
+
+            // Show/Close marketing table dengan nama toko
+            window.showMarketingData = async () => {
+                const container = document.getElementById("marketingDataContainer");
+                const start = document.getElementById("filterStart").value;
+                const end = document.getElementById("filterEnd").value;
+
+                const marketingSnap = await getDocs(collection(db, "marketing"));
+                const tokoSnap = await getDocs(collection(db, "toko"));
+
+                // Buat map tokoId => nama toko
+                const tokoMap = {};
+                tokoSnap.forEach(doc => tokoMap[doc.id] = doc.data().name);
+
+                if (marketingSnap.empty) {
+                    container.innerHTML = "<p>Belum ada data marketing</p>";
+                    container.style.display = "block";
+                    return;
+                }
+
+                const table = document.createElement("table");
+                table.innerHTML = `<thead><tr><th>Toko</th><th>Bulan</th><th>Value Sales</th><th>Aksi</th></tr></thead>`;
+                const tbody = document.createElement("tbody");
+
+                marketingSnap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if ((start && d.bulan < start) || (end && d.bulan > end)) return;
+
+                    const tokoName = tokoMap[d.tokoId] || d.tokoId; // fallback ke ID jika nama tidak ada
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${tokoName}</td><td>${d.bulan}</td><td>${d.value.toLocaleString()}</td>
+            <td><button onclick="deleteMarketing('${docSnap.id}')">Hapus</button></td>`;
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = "";
+                container.appendChild(table);
+                container.style.display = "block";
+            };
+
+            window.closeMarketingData = () => document.getElementById("marketingDataContainer").style.display = "none";
+
+            // Delete marketing row
+            window.deleteMarketing = async (id) => {
+                if (confirm("Hapus data marketing ini?")) {
+                    await deleteDoc(doc(db, "marketing", id));
+                    alert("Data berhasil dihapus");
+                    showMarketingData();
+                    loadDashboardData();
+                }
+            };
+        </script>
+
+    </body>
+
+</html>
